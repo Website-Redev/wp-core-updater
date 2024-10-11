@@ -1,0 +1,22 @@
+{
+    "name": "redev/wp-core-updater",
+    "authors": [
+        {
+            "name": "Jomar Jay Corona",
+            "email": "arrcorona@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "WpCoreUpdater\\": "./app"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": false
+        }
+    },
+    "require": {
+        "timber/timber": "^1.0"
+    }
+}
