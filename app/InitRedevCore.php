@@ -1,5 +1,5 @@
 <?php
-namespace WpCoreUpdater;
+namespace App;
 
 final class InitRedevCore
 {
@@ -8,6 +8,7 @@ final class InitRedevCore
 	{
 		// register all class
 		return [
+			Controllers\CoreUpdateController::class,
 		];
 	}
 

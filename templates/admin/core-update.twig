@@ -1,0 +1,151 @@
+<style>
+    .modal {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+    }
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+    }
+</style>
+<div class="wrap">
+    <h1>Core Update</h1>
+    
+    <p><strong>Update WordPress Core</strong></p>
+    
+    <p>
+        <strong>Current WordPress Version:</strong> {{ current_version }}<br>
+        <strong>Server WordPress Version:</strong> {{ server_version }}
+    </p>
+    
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+	{% if up_to_date_message %}
+        <p>{{ up_to_date_message }}</p>
+    {% endif %}
+    
+    <button id="ccu-update-core-btn" class="button button-primary" {% if button_disabled %}disabled{% endif %}>
+        Update Core
+    </button>
+
+    <div id="ccu-progress-container" style="display: none;">
+        <h4>Updating...</h4>
+        <progress id="ccu-progress-bar" max="100" value="0"></progress>
+    </div>
+    
+    <div id="ccu-message"></div>
+
+	<div id="backupModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h2>Backup Required</h2>
+            <p>Please make sure to back up your site before proceeding with the update.</p>
+            <button class="button button-primary" id="confirmBackup">Yes, I have backed up</button>
+            <button class="button button-default" id="cancelBackup">No, cancel</button>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    jQuery(document).ready(function($) {
+
+		 $('#ccu-update-core-btn').on('click', function(e) {
+            e.preventDefault();
+            $('#backupModal').show(); // Show the backup confirmation modal
+        });
+
+
+        $('#confirmBackup').on('click', function(e) {
+            e.preventDefault();
+			$('#backupModal').hide(); // Hide the modal
+            
+            var nonce = '{{ nonce }}';
+            var $progressBar = $('#ccu-progress-bar');
+            var $message = $('#ccu-message');
+            var $progressContainer = $('#ccu-progress-container');
+            
+            $progressContainer.show();
+			$('#ccu-update-core-btn').prop('disabled', true); // Disable the button
+            $('#ccu-update-core-btn').text('Processing...');
+
+			$progressBar.val(0).removeClass('error'); 
+
+			var totalTime = 30000; // Total processing time (30 seconds)
+            var increment = 100; // Time interval in ms
+            var progressTime = 0; // Track elapsed time
+
+            progressInterval = setInterval(function() {
+                progressTime += increment;
+                var percentComplete = (progressTime / totalTime) * 100;
+
+                if (percentComplete >= 100) {
+                    clearInterval(progressInterval);
+                }
+
+                $progressBar.val(percentComplete);
+            }, increment);
+            
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'ccu_update_core',
+                    nonce: nonce
+                },
+				/*
+                xhr: function() {
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener("progress", function(evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total * 100;
+                            $progressBar.val(percentComplete);
+                        }
+                    }, false);
+                    return xhr;
+                },
+				*/
+                success: function(response) {
+					clearInterval(progressInterval);
+					$progressBar.val(100);
+                    if (response.success) {
+                        $message.html('<div class="notice notice-success" style="color:green;">' + response.data.message + '</div>');
+
+					setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+
+                    } else {
+						$progressBar.val(100).addClass('error');
+                        $message.html('<div class="notice notice-error" style="color:red;">' + response.data.message + '</div>');
+                    }
+                },
+                error: function(err) {
+					clearInterval(progressInterval);
+					$progressBar.val(100).addClass('error');
+                    $message.html('<div class="notice notice-error" style="color:red;">An error occurred while updating </div>');
+                },
+                complete: function() {
+					setTimeout(function() {
+                     	$progressContainer.hide();
+                    }, 2000);
+                }
+            });
+        });
+
+		 $('#cancelBackup').on('click', function() {
+            $('#backupModal').hide(); // Hide the modal
+        });
+    });
+</script>

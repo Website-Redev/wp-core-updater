@@ -1,5 +1,5 @@
 {
-    "name": "redev/wp-core-updater",
+    "name": "redev/wpcore-updater",
     "authors": [
         {
             "name": "Jomar Jay Corona",
@@ -8,7 +8,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "WpCoreUpdater\\": "./app"
+            "App\\": "./app"
         }
     },
     "config": {

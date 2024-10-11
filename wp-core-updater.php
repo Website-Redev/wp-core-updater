@@ -3,14 +3,14 @@
 Plugin Name: WP Core Updater
 Plugin URI: https://websiteredev.com/plugin
 Description: The WP Core Updater plugin is designed to manage WordPress core updates.
-Version: 1.0.1
-Author: jomar@websiteredev.com
+Version: 1.0.3
+Author: Jomar Redev
 Author URI: https://websiteredev.com
 License: GPLv2 or later
 Text Domain: websiteredev-wpcore
 */
 
-use WpCoreUpdater\InitRedevCore;
+use App\InitRedevCore;
 use Timber\Timber as TimberRedev;
 
 defined('ABSPATH') or die('Contact Redev Permission Denied!');
@@ -20,6 +20,9 @@ if (file_exists(dirname(__FILE__) . '/vendor/autoload.php')) {
 }
 
 
+if (class_exists('App\\InitRedevCore')) {
+    InitRedevCore::registerRedevServices();
+}
 
 if (class_exists('Timber\\Timber')) {
     TimberRedev::$dirname = array('templates', 'views');
